@@ -69,7 +69,7 @@ div.Indented * {
 }
 div.PlumBackground {
 	background-repeat: repeat-x;
-	background-image: url("../img/footer_backgrounds/plum_pavement_background.png");
+	background-image: url("/img/footer_backgrounds/plum_pavement_background.png");
 	background-position: left bottom;
 	height: 320px;
 }
