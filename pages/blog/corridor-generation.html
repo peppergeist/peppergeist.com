@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="/css/main.css" type="text/css" media="all">
+    <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon">
+    <title>peppergeist :: Blog :: Corridor Generation</title>
+  </head>
+  <body>
+    <div id="globalWrapper">
+      <h1 class="title">Corridor Generation</h1>
+      <hr />
+      <h2>Overview</h2>
+      <div class="indented">
+        When generating maps for <a href="/pages/projects/ithom.html">ITHOM</a>,
+        a common issue which came up was the creation of corridors. For many map
+        archetypes, the focus of the map was a collection of disjoint rooms,
+        connected by a number of corridors. Generally, nothing of interest would
+        be generated in corridors, and they would only serve as connecting
+        passageways between rooms, which was where the action happened. However,
+        sometimes this design process led to the introduction of particularly
+        long corridors, with very little to interest the player traveling
+        between rooms.
+        <p /> In order to alleviate the samey-ness of corridors and introduce
+        a little bit of variety into corridors, I explored a variety of
+        algorithms to facilitate the creation of these structures.
+      </div>
+      <h2>The Problems</h2>
+      <div class="indented">
+        I started with a number of relatively uninteresting corridor designs.
+        The first of these was the simple
+        <a href="https://en.wikipedia.org/wiki/A*_search_algorithm">
+          A* pathfinding corridor
+        </a>.
+        This algorithm used the A* method to find the shortest path between two
+        doors, shown as pluses in the diagram below:
+      </div>
+      <div class="center">
+        <pre style="line-height: 92%">
+╔════════════════════╗
+║  │                 ║
+║  +######           ║
+║──┘     ##          ║
+║         ##         ║
+║          ##        ║
+║           ##    ┌──║
+║            ##   │  ║
+║             ####+  ║
+║                 │  ║
+╚════════════════════╝
+simple A*</pre>
+      </div>
+      <br />
+      <div class="unindented">
+        This style of corridor is not ideal for a variety of reasons. First and
+        foremost, it is ugly. It is the lowest-effort solution to connecting
+        rooms and the player will be able to notice. I attempted a number of
+        other similer solutions:
+      </div>
+      <div class="center">
+        <pre style="line-height: 92%">
+╔════════════════════╗ ╔════════════════════╗ ╔════════════════════╗
+║  │                 ║ ║  │                 ║ ║  │                 ║
+║  +##############   ║ ║  +########         ║ ║  +#####            ║
+║──┘             #   ║ ║──┘       #         ║ ║──┘    #            ║
+║                #   ║ ║          #         ║ ║       ###          ║
+║                #   ║ ║          #         ║ ║         #          ║
+║                #┌──║ ║          #      ┌──║ ║         ###     ┌──║
+║                #│  ║ ║          #      │  ║ ║           #     │  ║
+║                #+  ║ ║          #######+  ║ ║           ######+  ║
+║                 │  ║ ║                 │  ║ ║                 │  ║
+╚════════════════════╝ ╚════════════════════╝ ╚════════════════════╝
+      axis-wise             simple pipe            NetHack-style    </pre>
+      </div>
+      <br />
+      <div class="unindented">
+        I think that it is obvious that out of all of the proposed solutions
+        so far, the NetHack-style corridor is the least stupid-looking. The
+        axis-wise implementation is possibly the ugliest implementation yet,
+        and the simple pipe is not much better. The NetHack-style is still
+        simple, but the algorithm prefers to change direction as little as
+        possible, unless the slope differential becomes to great. This leads to
+        a nicer looking zigzag curve when approaching the midpoint of the room
+        connections. This solution is acceptable sometimes, and is used in the
+        final build. However, this is not the final solution I wanted to settle
+        on.
+      </div>
+      <h2>The Solution</h2>
+      <div class="indented">
+        I like the look of the NetHack-style corridor, but I wanted a little
+        more variety in the bends of the corridor than just straight zigzags.
+        My solution was to take the area between the two proposed doorways and
+        superimpose a mask of "no-go" tiles. After this, the corridor generation
+        algorithm would use a combination of simple A* pathfinding and slope
+        detection to build a corridor between the two doors, while avoiding the
+        no-go tiles as much as possible. Typically, the no-go tiles would be
+        randomly selected to provide as much variety as possible, but sometimes
+        would be randomly selected only in a single quadrant between the two
+        doors and then symetrically mirrored across the other quadrants. The
+        diagram below shows one such example of this method:
+      </div>
+      <div class="center">
+        <pre style="line-height: 92%">
+╔════════════════════╗ ╔════════════════════╗ ╔════════════════════╗
+║  │                 ║ ║  │                 ║ ║  │                 ║
+║  +    X    X       ║ ║  +####X    X       ║ ║  +####             ║
+║──┘    X    X       ║ ║──┘   #X    X       ║ ║──┘   #             ║
+║         XX         ║ ║      ## XX         ║ ║      ##            ║
+║        XXXX        ║ ║       #XXXX        ║ ║       #            ║
+║         XX      ┌──║ ║       ##XX###   ┌──║ ║       ##  ###   ┌──║
+║       X    X    │  ║ ║       X####X#   │  ║ ║        #### #   │  ║
+║       X    X    +  ║ ║       X    X####+  ║ ║             ####+  ║
+║                 │  ║ ║                 │  ║ ║                 │  ║
+╚════════════════════╝ ╚════════════════════╝ ╚════════════════════╝
+  define dead zones         dig corridor         remove dead zones  </pre>
+      </div>
+      <br />
+      <div class="unindented">
+        Step-by-step, the process is as follows:
+        <ol>
+          <li>
+            Define dead zones. In this case, the dead zone was defined only in
+            one quadrant at random, and then symetrically mirrored across the
+            other three quadrants. The dead zones are indicated by the Xs.
+          </li>
+          <li>
+            Use A* pathfinding to dig from one door to another. Dead zones
+            prevent the generation of corridors. Additionally, when the slope
+            becomes too great on the point between where the corridor digger
+            currently is with regards to its destination point, the algorithm
+            will change directions.
+          </li>
+          <li>
+            Remove the dead zones. The result is a corridor which generally
+            moves from point A to point B, but without being too generic, too
+            repetitive, or too uninteresting.
+          </li>
+        </ol>
+        <p />Not wanted to discard the previous research I had done into the
+        other methods, the map generator sometimes resorts to the other corridor
+        generations as well, to provide even more variety.
+      </div>
+      <hr />
+      <div class="center">
+        <i>
+          <a href="/index.html">home</a>
+          :: <a href="/pages/blog-index.html">blog</a>
+          :: corridor generation
+        </i>
+      </div>
+    </div>
+  </body>
+</html>
