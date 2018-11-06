@@ -16,6 +16,14 @@ body {
   line-height: 1.5em;
 }
 
+#globalWrapperInverse {
+  margin:10px 25%;
+  padding 20px;
+  background: #000000;
+  line-height: 1.5em;
+  color: white;
+}
+
 /* Basic styles */
 a {
   text-decoration: none;
