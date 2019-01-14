@@ -62,7 +62,7 @@ sub {
   line-height: 0.5em;
   vertical-align: text-bottom;
 }
-div.Standard {
+div.standard {
   margin: 1em 0;
 }
 div.unindented {
@@ -75,7 +75,7 @@ div.indented {
 div.indented * {
   text-indent: 0pt;
 }
-div.PlumBackground {
+div.plum {
   background-repeat: repeat-x;
   background-image: url("/img/footer_backgrounds/plum_pavement_background.png");
   background-position: left bottom;
@@ -106,7 +106,7 @@ td {
   padding: 1ex;
   border: thin solid #f0f0f0;
 }
-td div.Standard {
+td div.standard {
   margin: 0ex;
   padding: 0ex;
 }
@@ -127,7 +127,7 @@ td.empty {
 div.right {
   text-align: right;
 }
-div.center {
+div.centered {
   text-align: center;
   margin-left: auto;
   margin-right: auto;
