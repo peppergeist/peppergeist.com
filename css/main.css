@@ -1,16 +1,21 @@
 body {
   font: 100% sans-serif;
+  font-size: 16px;
   background-color:#ffffff;
   color: black;
   margin: 0;
-  max-width: 1600px;
-  margin-left:auto;
-  margin-right:auto;
+  margin-left:0px;
+  margin-right:0px;
   padding: 0;
 }
 
 #globalWrapper {
-  margin: 10px 25%;
+  object-position: center;
+  max-width: 800px;
+  margin-top: 10px;
+  margin-left: 25%;
+  margin-right: 25%;
+  margin-bottom: 10px;
   padding: 20px;
   background: #ffffff;
   line-height: 1.5em;
@@ -77,9 +82,11 @@ div.indented * {
 }
 div.plum {
   background-repeat: repeat-x;
-  background-image: url("/img/footer_backgrounds/plum_pavement_background.png");
-  background-position: left bottom;
-  height: 320px;
+  background-image: url("../img/footer-backgrounds/plum-pavement-background.png");
+  background-position: center bottom;
+  position:absolute;
+  height:320px;
+  width:100%;
 }
 p.dir {
   float: right;
